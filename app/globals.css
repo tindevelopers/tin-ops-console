@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@source "../node_modules/@tindevelopers/ui-shell/dist";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-*: initial;
+  --font-outfit: Outfit, system-ui, sans-serif;
+
+  /* TailAdmin text scale used by the shared sidebar (`text-theme-sm`). */
+  --text-theme-sm: 14px;
+  --text-theme-sm--line-height: 20px;
+
+  /* Brand palette (console's indigo accent). */
+  --color-brand-25: #f8faff;
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #4f46e5;
+  --color-brand-600: #4338ca;
+  --color-brand-700: #3730a3;
+  --color-brand-800: #312e81;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
+
+  /* Success palette (needed by menu dropdown badges). */
+  --color-success-25: #f6fef9;
+  --color-success-50: #ecfdf3;
+  --color-success-100: #d1fadf;
+  --color-success-200: #a6f4c5;
+  --color-success-300: #6ce9a6;
+  --color-success-400: #32d583;
+  --color-success-500: #12b76a;
+  --color-success-600: #039855;
+  --color-success-700: #027a48;
+  --color-success-800: #05603a;
+  --color-success-900: #054f31;
+  --color-success-950: #053321;
+}
+
+/*
+ * TailAdmin sidebar styles for the shared @base/ui-shell AppSidebar.
+ * These custom utilities were defined in apps/ops but were missing from the
+ * Platform Console, so the console sidebar rendered unstyled.
+ */
+@utility menu-item {
+  @apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm;
+}
+
+@utility menu-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+}
+
+@utility menu-item-icon {
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+}
+
+@utility menu-item-icon-active {
+  @apply text-brand-500 dark:text-brand-400;
+}
+
+@utility menu-item-icon-inactive {
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-item-arrow {
+  @apply relative;
+}
+
+@utility menu-item-arrow-active {
+  @apply rotate-180 text-brand-500 dark:text-brand-400;
+}
+
+@utility menu-item-arrow-inactive {
+  @apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-dropdown-item {
+  @apply relative text-sm flex items-center gap-3 rounded-lg px-3 py-2.5  font-medium;
+}
+
+@utility menu-dropdown-item-active {
+  @apply bg-brand-50 text-brand-500 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-dropdown-item-inactive {
+  @apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+}
+
+@utility menu-dropdown-badge {
+  @apply text-success-600 dark:text-success-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+}
+
+@utility menu-dropdown-badge-active {
+  @apply bg-success-100 dark:bg-success-500/20;
+}
+
+@utility menu-dropdown-badge-inactive {
+  @apply bg-success-50 group-hover:bg-success-100 dark:bg-success-500/15 dark:group-hover:bg-success-500/20;
+}
+
+@utility menu-dropdown-badge-pro {
+  @apply text-brand-600 dark:text-brand-500 block rounded-full px-2.5 py-0.5 text-xs font-medium uppercase;
+}
+
+@utility menu-dropdown-badge-pro-active {
+  @apply bg-brand-100 dark:bg-brand-500/20;
+}
+
+@utility menu-dropdown-badge-pro-inactive {
+  @apply bg-brand-50 group-hover:bg-brand-100 dark:bg-brand-500/15 dark:group-hover:bg-brand-500/20;
+}
+
+@utility no-scrollbar {
+  /* Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

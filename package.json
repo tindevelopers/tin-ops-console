@@ -1,6 +1,39 @@
 {
+  "name": "tin-ops-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TIN ops console: read-only status of hubs, packages, cells and keys (spec: shell-base-admin docs/specs/2026-10-03-tin-ops-console-design.md)",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev --port 3020 --webpack",
+    "build": "next build --webpack",
+    "start": "next start --port 3020",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
   "dependencies": {
     "@neon/config": "^1.8.3",
-    "@neon/env": "^1.5.0"
+    "@neon/env": "^1.5.0",
+    "@neondatabase/serverless": "^1.2.0",
+    "@tindevelopers/domain-identity": "2.3.0",
+    "@tindevelopers/schema-identity": "1.1.0",
+    "@tindevelopers/ui-shell": "1.2.0",
+    "next": "^16.3.8",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "packageManager": "pnpm@10.6.1",
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.0.9",
+    "@types/node": "^22",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.3"
   }
 }
