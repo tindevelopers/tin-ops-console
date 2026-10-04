@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
-import { getAuthProvider } from "@/src/auth/auth";
+import { getCurrentUser } from "@/src/auth/auth";
 import { signOut } from "../signin/actions";
 
 // ponytail: placeholder until T8 builds the Overview panel. The redirect is replaced by proxy.ts in T6.
 export default async function OverviewPage() {
-  const user = await getAuthProvider().getUser();
+  const user = await getCurrentUser();
   if (!user?.email) redirect("/signin");
   return (
     <div className="space-y-4">

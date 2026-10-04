@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getAuth, getAuthProvider } from "@/src/auth/auth";
+import { getAuth } from "@/src/auth/auth";
 
 const field = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const fail = (step: string, msg: string, email = ""): never =>
@@ -9,16 +9,13 @@ const fail = (step: string, msg: string, email = ""): never =>
 
 export async function signIn(form: FormData) {
   const email = field(form, "email");
-  try {
-    await getAuthProvider().signIn(email, String(form.get("password") ?? ""));
-  } catch {
-    fail("signin", "Sign-in failed. Check your email and password.");
-  }
+  const { error } = await getAuth().signIn.email({ email, password: String(form.get("password") ?? "") });
+  if (error) fail("signin", "Sign-in failed. Check your email and password.");
   redirect("/");
 }
 
 export async function signOut() {
-  await getAuthProvider().signOut();
+  await getAuth().signOut();
   redirect("/signin");
 }
 
