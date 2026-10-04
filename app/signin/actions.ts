@@ -26,9 +26,9 @@ export async function signOut() {
 export async function requestReset(form: FormData) {
   const email = field(form, "email");
   try {
-    await getAuth().emailOtp.requestPasswordReset({ email });
+    await getAuth().emailOtp.sendVerificationOtp({ email, type: "forget-password" });
   } catch {
-    fail("forgot", "Could not send the code. Try again in a minute.");
+    fail("forgot","Could not send the code. Try again in a minute.");
   }
   redirect(`/signin?step=reset&email=${encodeURIComponent(email)}`);
 }

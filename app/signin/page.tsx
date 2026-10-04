@@ -13,7 +13,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
 
       {step === "forgot" && (
         <form action={requestReset} className="space-y-3">
-          <input className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
+          <input suppressHydrationWarning className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
           <button className={button}>Email me a code</button>
         </form>
       )}
@@ -21,15 +21,15 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <form action={resetPassword} className="space-y-3">
           <input type="hidden" name="email" value={email} />
           <p>Enter the code sent to {email} and choose a new password.</p>
-          <input className={input} name="otp" inputMode="numeric" autoComplete="one-time-code" placeholder="Code" required />
-          <input className={input} name="password" type="password" autoComplete="new-password" placeholder="New password (12+ characters)" required />
+          <input suppressHydrationWarning className={input} name="otp" inputMode="numeric" autoComplete="one-time-code" placeholder="Code" required />
+          <input suppressHydrationWarning className={input} name="password" type="password" autoComplete="new-password" placeholder="New password (12+ characters)" required />
           <button className={button}>Set password</button>
         </form>
       )}
       {step === "signin" && (
         <form action={signIn} className="space-y-3">
-          <input className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
-          <input className={input} name="password" type="password" autoComplete="current-password" placeholder="Password" required />
+          <input suppressHydrationWarning className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
+          <input suppressHydrationWarning className={input} name="password" type="password" autoComplete="current-password" placeholder="Password" required />
           <button className={button}>Sign in</button>
           <a className="block text-center text-sm underline" href="/signin?step=forgot">Forgot password or first sign-in</a>
         </form>
