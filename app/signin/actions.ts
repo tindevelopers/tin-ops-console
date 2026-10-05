@@ -8,10 +8,25 @@ const field = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const fail = (step: string, msg: string, email = ""): never =>
   redirect(`/signin?step=${step}&error=${encodeURIComponent(msg)}${email ? `&email=${encodeURIComponent(email)}` : ""}`);
 
+// Neon rejects for several reasons that all used to read "check your password". Name the ones the operator can act on.
+function signInMessage(error: { code?: string; message?: string; status?: number }): string {
+  switch (error.code) {
+    case "INVALID_EMAIL_OR_PASSWORD":
+      return "Sign-in failed. Check your email and password.";
+    case "INVALID_ORIGIN":
+      return "Sign-in failed: Neon Auth does not trust this web address. Use tin-ops-console.vercel.app, or ask an admin to add this address as a trusted domain.";
+    case "USER_BANNED":
+      return "Sign-in failed: this account is disabled.";
+    default:
+      console.error("sign-in error", error.code, error.status, error.message);
+      return `Sign-in failed (${error.code ?? error.status ?? "unknown error"}). Try again, or reset your password.`;
+  }
+}
+
 export async function signIn(form: FormData) {
   const email = field(form, "email");
   const { error } = await getAuth().signIn.email({ email, password: String(form.get("password") ?? "") });
-  if (error) fail("signin", "Sign-in failed. Check your email and password.");
+  if (error) fail("signin", signInMessage(error), email);
   redirect("/");
 }
 
