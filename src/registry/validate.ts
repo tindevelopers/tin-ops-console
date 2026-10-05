@@ -1,0 +1,80 @@
+import { ASSIGN_ROLES, DOMAIN_MODES, ENV_NAMES, KINDS, LIFECYCLES, RELATIONS } from "./types";
+import type { AssignRole, DomainMode, EnvName, Kind, Lifecycle, Relation } from "./types";
+
+/** A message that is safe to show the operator. Anything else is reported generically. */
+export class ValidationError extends Error {}
+
+export type Command =
+  | { type: "upsertProject"; slug: string; name: string; kind: Kind; client: string | null; repo: string | null; lifecycle: Lifecycle; notes: string | null }
+  | { type: "upsertEnvironment"; slug: string; name: EnvName; cell: string | null; region: string | null; url: string | null }
+  | { type: "setPin"; slug: string; environment: EnvName; package: string; version: string }
+  | { type: "removePin"; slug: string; environment: EnvName; package: string }
+  | { type: "setAdoption"; slug: string; environment: EnvName; domainMode: DomainMode }
+  | { type: "assign"; slug: string; assignee: string; role: AssignRole }
+  | { type: "unassign"; slug: string; id: string }
+  | { type: "addRelation"; slug: string; to: string; relation: Relation }
+  | { type: "removeRelation"; slug: string; to: string; relation: Relation };
+
+type Form = { get(name: string): unknown };
+
+const text = (f: Form, k: string) => String(f.get(k) ?? "").trim();
+const required = (f: Form, k: string, label: string) => {
+  const v = text(f, k);
+  if (!v) throw new ValidationError(`${label} is required.`);
+  return v;
+};
+const optional = (f: Form, k: string) => text(f, k) || null;
+const oneOf = <T extends string>(f: Form, k: string, allowed: readonly T[], label: string): T => {
+  const v = text(f, k);
+  if (!(allowed as readonly string[]).includes(v)) throw new ValidationError(`${label} must be one of: ${allowed.join(", ")}.`);
+  return v as T;
+};
+const slug = (f: Form, k = "slug", label = "Project") => {
+  const v = required(f, k, label);
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(v)) throw new ValidationError(`${label} id may only use lower-case letters, digits and hyphens.`);
+  return v;
+};
+const email = (f: Form, k: string) => {
+  const v = required(f, k, "Email").toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) throw new ValidationError("Enter a valid email address.");
+  return v;
+};
+const url = (f: Form, k: string) => {
+  const v = optional(f, k);
+  if (v && !/^https:\/\/\S+$/.test(v)) throw new ValidationError("URL must start with https://.");
+  return v;
+};
+const exactVersion = (f: Form, k: string) => {
+  const v = required(f, k, "Version");
+  if (!/^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/.test(v)) throw new ValidationError("Version must be exact, like 1.2.0 (no ranges).");
+  return v;
+};
+
+export function parseCommand(type: Command["type"], f: Form): Command {
+  switch (type) {
+    case "upsertProject":
+      return { type, slug: slug(f), name: required(f, "name", "Name"), kind: oneOf(f, "kind", KINDS, "Kind"), client: optional(f, "client"), repo: optional(f, "repo"), lifecycle: oneOf(f, "lifecycle", LIFECYCLES, "Lifecycle"), notes: optional(f, "notes") };
+    case "upsertEnvironment":
+      return { type, slug: slug(f), name: oneOf(f, "name", ENV_NAMES, "Environment"), cell: optional(f, "cell"), region: optional(f, "region"), url: url(f, "url") };
+    case "setPin":
+      return { type, slug: slug(f), environment: oneOf(f, "environment", ENV_NAMES, "Environment"), package: required(f, "package", "Package"), version: exactVersion(f, "version") };
+    case "removePin":
+      return { type, slug: slug(f), environment: oneOf(f, "environment", ENV_NAMES, "Environment"), package: required(f, "package", "Package") };
+    case "setAdoption":
+      return { type, slug: slug(f), environment: oneOf(f, "environment", ENV_NAMES, "Environment"), domainMode: oneOf(f, "domainMode", DOMAIN_MODES, "Mode") };
+    case "assign":
+      return { type, slug: slug(f), assignee: email(f, "assignee"), role: oneOf(f, "role", ASSIGN_ROLES, "Role") };
+    case "unassign": {
+      const id = required(f, "id", "Assignment");
+      if (!/^\d+$/.test(id)) throw new ValidationError("Unknown assignment.");
+      return { type, slug: slug(f), id };
+    }
+    case "addRelation":
+    case "removeRelation": {
+      const to = slug(f, "to", "Related project");
+      const s = slug(f);
+      if (to === s) throw new ValidationError("A project cannot relate to itself.");
+      return { type, slug: s, to, relation: oneOf(f, "relation", RELATIONS, "Relation") };
+    }
+  }
+}

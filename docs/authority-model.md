@@ -29,11 +29,17 @@ Unchanged: C1 (own repo), C2 (Neon, EU), C5 (key metadata only, never secrets), 
 - Every change to a registry table or to `console_operators` is recorded in `registry_audit` by a database trigger, with actor, before and after. The console must run `SELECT set_config('console.actor', <email>, true)` in the same transaction as each write; a write without an actor is refused. No role can edit or delete audit rows.
 - Retiring replaces deleting: projects, environments and assignments cannot be deleted (`lifecycle = 'retired'`, `removed_at`). Relations, pins and adoption modes can be removed.
 
+## Built
+
+- **Admin screens** (`/projects`, `/projects/[slug]`): add and edit projects, environments, declared versions, BOSS mode, owners and relationships. Forms show only for `console_operators.role = 'admin'` and only when `CONSOLE_ADMIN_DATABASE_URL` is set. Each server action re-checks admin access itself and runs its write in one transaction that sets the audit actor.
+- **Drift view** (`/drift`, plus a status per project and a findings table per project): declared pins against the collector's `latest`/`next`, declared cells against their health, and projects with no owner. A package or cell the collector has not seen is amber, never green. Retired projects are skipped. Rules are in `src/registry/drift.ts`.
+- New pages require an active `console_operators` row. The older pages (`/packages`, `/cells`, `/collector`) still only require sign-in; see below.
+
 ## Still to build
 
-1. Apply `db/002_authority.sql` to Neon (needs owner approval, like H2) and enable login for `console_admin`.
-2. Admin screens and server actions (project, owner, pins, adoption mode), gated on `console_operators.role = 'admin'`.
-3. Drift view joining declared pins to the latest data run.
-4. Per-project detail page and an Overview built from declared state.
-5. Collector (registry repo): populate observed state, including per-project pins read from lockfiles.
+1. Apply `db/002_authority.sql` to Neon (needs owner approval, like H2), enable login for `console_admin`, and set `CONSOLE_ADMIN_DATABASE_URL`.
+2. Move the older pages and the Overview onto the operator check (`requireOperator`). Until then any signed-in Neon Auth user, including via OAuth, can read them.
+3. Overview built from declared state and drift counts.
+4. Collector (registry repo): populate observed state, including per-project pins read from lockfiles, so drift has data.
+5. A way to bulk-import the first projects, so the registry isn't filled one form at a time.
 6. Decide whether other systems (registry, cell files) are later generated from the console, or stay as inputs it reconciles against.
