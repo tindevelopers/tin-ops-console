@@ -68,9 +68,9 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
           <form action={saveEnvironment} className="mt-3 flex flex-wrap items-end gap-3">
             {hidden}
             <label className="text-sm">Environment<br /><Select name="name" options={ENV_NAMES} /></label>
-            <label className="text-sm">Cell<br /><input name="cell" className={inputCls} placeholder="konnect-dev" /></label>
-            <label className="text-sm">Region<br /><input name="region" className={inputCls} /></label>
-            <label className="text-sm">URL<br /><input name="url" className={inputCls} placeholder="https://…" /></label>
+            <label className="text-sm">Cell<br /><input name="cell" autoComplete="off" className={inputCls} placeholder="konnect-dev" /></label>
+            <label className="text-sm">Region<br /><input name="region" autoComplete="off" className={inputCls} /></label>
+            <label className="text-sm">URL<br /><input name="url" autoComplete="off" className={inputCls} placeholder="https://…" /></label>
             <button className={btnCls}>Save environment</button>
           </form>
         )}
@@ -97,8 +97,8 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
           <form action={setPin} className="mt-3 flex flex-wrap items-end gap-3">
             {hidden}
             <label className="text-sm">Environment<br /><Select name="environment" options={envs.map((e) => e.name)} /></label>
-            <label className="text-sm">Package<br /><input name="package" className={inputCls} placeholder="@tindevelopers/ui-shell" required /></label>
-            <label className="text-sm">Version<br /><input name="version" className={inputCls} placeholder="1.2.0" required /></label>
+            <label className="text-sm">Package<br /><input name="package" autoComplete="off" className={inputCls} placeholder="@tindevelopers/ui-shell" required /></label>
+            <label className="text-sm">Version<br /><input name="version" autoComplete="off" className={inputCls} placeholder="1.2.0" required /></label>
             <button className={btnCls}>Declare version</button>
           </form>
         )}
@@ -122,7 +122,7 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
         {canEdit && (
           <form action={assign} className="mt-3 flex flex-wrap items-end gap-3">
             {hidden}
-            <label className="text-sm">Email<br /><input name="assignee" type="email" className={inputCls} required /></label>
+            <label className="text-sm">Email<br /><input name="assignee" type="email" autoComplete="off" className={inputCls} required /></label>
             <label className="text-sm">Role<br /><Select name="role" options={ASSIGN_ROLES} /></label>
             <button className={btnCls}>Assign</button>
           </form>
@@ -157,12 +157,12 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
         <Section title="Project details">
           <form action={saveProject} className="flex flex-wrap items-end gap-3">
             {hidden}
-            <label className="text-sm">Name<br /><input name="name" className={inputCls} defaultValue={project.name} required /></label>
+            <label className="text-sm">Name<br /><input name="name" autoComplete="off" className={inputCls} defaultValue={project.name} required /></label>
             <label className="text-sm">Kind<br /><Select name="kind" options={KINDS} defaultValue={project.kind} /></label>
-            <label className="text-sm">Client<br /><input name="client" className={inputCls} defaultValue={project.client ?? ""} /></label>
-            <label className="text-sm">Repo<br /><input name="repo" className={inputCls} defaultValue={project.repo ?? ""} /></label>
+            <label className="text-sm">Client<br /><input name="client" autoComplete="off" className={inputCls} defaultValue={project.client ?? ""} /></label>
+            <label className="text-sm">Repo<br /><input name="repo" autoComplete="off" className={inputCls} defaultValue={project.repo ?? ""} /></label>
             <label className="text-sm">Lifecycle<br /><Select name="lifecycle" options={LIFECYCLES} defaultValue={project.lifecycle} /></label>
-            <label className="text-sm">Notes<br /><input name="notes" className={inputCls} defaultValue={project.notes ?? ""} /></label>
+            <label className="text-sm">Notes<br /><input name="notes" autoComplete="off" className={inputCls} defaultValue={project.notes ?? ""} /></label>
             <button className={btnCls}>Save</button>
           </form>
         </Section>

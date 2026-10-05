@@ -39,11 +39,11 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
       )}
       {canEdit ? (
         <form action={saveProject} className="mt-8 flex flex-wrap items-end gap-3">
-          <label className="text-sm">Id<br /><input name="slug" className={inputCls} placeholder="konnect-caas-base" required /></label>
-          <label className="text-sm">Name<br /><input name="name" className={inputCls} required /></label>
+          <label className="text-sm">Id<br /><input name="slug" autoComplete="off" className={inputCls} placeholder="konnect-caas-base" required /></label>
+          <label className="text-sm">Name<br /><input name="name" autoComplete="off" className={inputCls} required /></label>
           <label className="text-sm">Kind<br /><Select name="kind" options={KINDS} defaultValue="app" /></label>
-          <label className="text-sm">Client<br /><input name="client" className={inputCls} /></label>
-          <label className="text-sm">Repo<br /><input name="repo" className={inputCls} placeholder="tindevelopers/…" /></label>
+          <label className="text-sm">Client<br /><input name="client" autoComplete="off" className={inputCls} /></label>
+          <label className="text-sm">Repo<br /><input name="repo" autoComplete="off" className={inputCls} placeholder="tindevelopers/…" /></label>
           <label className="text-sm">Lifecycle<br /><Select name="lifecycle" options={LIFECYCLES} defaultValue="active" /></label>
           <button className={btnCls}>Add project</button>
         </form>

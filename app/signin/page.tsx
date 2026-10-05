@@ -13,7 +13,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
 
       {step === "forgot" && (
         <form action={requestReset} className="space-y-3">
-          <input suppressHydrationWarning className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
+          <input suppressHydrationWarning className={input} name="email" type="email" autoComplete="email" placeholder="Email" defaultValue={email} required />
           <button className={button}>Email me a code</button>
         </form>
       )}
@@ -28,7 +28,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
       )}
       {step === "signin" && (
         <form action={signIn} className="space-y-3">
-          <input suppressHydrationWarning className={input} name="email" type="email" placeholder="Email" defaultValue={email} required />
+          <input suppressHydrationWarning className={input} name="email" type="email" autoComplete="username" placeholder="Email" defaultValue={email} required />
           <input suppressHydrationWarning className={input} name="password" type="password" autoComplete="current-password" placeholder="Password" required />
           <button className={button}>Sign in</button>
           <a className="block text-center text-sm underline" href="/signin?step=forgot">Forgot password or first sign-in</a>
