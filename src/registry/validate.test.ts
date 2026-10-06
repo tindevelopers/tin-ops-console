@@ -10,7 +10,7 @@ const bad = (type: Parameters<typeof parseCommand>[0], o: Record<string, string>
 describe("parseCommand", () => {
   it("parses a project and trims, with blank optionals as null", () => {
     expect(parseCommand("upsertProject", form({ slug: "konnect", name: " Konnect ", kind: "app", lifecycle: "active", client: "", repo: "tindevelopers/konnect-caas-base" })))
-      .toEqual({ type: "upsertProject", slug: "konnect", name: "Konnect", kind: "app", client: null, repo: "tindevelopers/konnect-caas-base", lifecycle: "active", notes: null });
+      .toEqual({ type: "upsertProject", slug: "konnect", name: "Konnect", kind: "app", client: null, repo: "tindevelopers/konnect-caas-base", lifecycle: "active", notes: null, ownerProject: null });
   });
 
   it.each([
@@ -35,6 +35,13 @@ describe("parseCommand", () => {
     for (const version of ["1.2.0", "1.2.0-next.4"]) {
       expect(parseCommand("setPin", form({ slug: "a", environment: "development", package: "p", version }))).toMatchObject({ version });
     }
+  });
+
+  it("reads an optional owning project and rejects a malformed one", () => {
+    const base = { slug: "konnect-ops", name: "Konnect ops", kind: "app", lifecycle: "active" };
+    expect(parseCommand("upsertProject", form({ ...base, ownerProject: "konnect-caas-base" }))).toMatchObject({ ownerProject: "konnect-caas-base" });
+    expect(parseCommand("upsertProject", form({ ...base, ownerProject: "" }))).toMatchObject({ ownerProject: null });
+    expect(bad("upsertProject", { ...base, ownerProject: "Not A Slug" })).toBeInstanceOf(ValidationError);
   });
 
   it("lower-cases assignee emails", () => {

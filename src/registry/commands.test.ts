@@ -28,7 +28,7 @@ const rows = async <T = any>(sql: string) => (await db.query<T>(sql)).rows;
 
 beforeAll(async () => {
   db = new PGlite();
-  for (const f of ["001_status.sql", "002_authority.sql"]) await db.exec(readFileSync(join(__dirname, "../../db", f), "utf8"));
+  for (const f of ["001_status.sql", "002_authority.sql", "003_owner_project.sql"]) await db.exec(readFileSync(join(__dirname, "../../db", f), "utf8"));
 });
 
 describe("registry commands run against the real schema as console_admin", () => {
@@ -36,6 +36,21 @@ describe("registry commands run against the real schema as console_admin", () =>
     await run("upsertProject", { slug: "konnect", name: "Konnect", kind: "app", lifecycle: "active" });
     await run("upsertProject", { slug: "konnect", name: "Konnect CaaS", kind: "app", lifecycle: "active", client: "konnect" });
     expect(await rows("SELECT name, client FROM projects")).toEqual([{ name: "Konnect CaaS", client: "konnect" }]);
+  });
+
+  it("sets, changes and clears the owning project, and a project may own itself", async () => {
+    await run("upsertProject", { slug: "boss", name: "BOSS", kind: "boss", lifecycle: "active", ownerProject: "boss" });
+    await run("upsertProject", { slug: "konnect", name: "Konnect CaaS", kind: "app", lifecycle: "active", client: "konnect", ownerProject: "boss" });
+    expect(await rows("SELECT owner_project FROM projects WHERE slug = 'konnect'")).toEqual([{ owner_project: "boss" }]);
+    expect(await rows("SELECT owner_project FROM projects WHERE slug = 'boss'")).toEqual([{ owner_project: "boss" }]);
+    await run("upsertProject", { slug: "konnect", name: "Konnect CaaS", kind: "app", lifecycle: "active", client: "konnect" });
+    expect(await rows("SELECT owner_project FROM projects WHERE slug = 'konnect'")).toEqual([{ owner_project: null }]);
+    await run("upsertProject", { slug: "konnect", name: "Konnect CaaS", kind: "app", lifecycle: "active", client: "konnect", ownerProject: "boss" });
+  });
+
+  it("rejects an owning project that does not exist", async () => {
+    await expect(run("upsertProject", { slug: "konnect", name: "Konnect CaaS", kind: "app", lifecycle: "active", ownerProject: "nope" })).rejects.toThrow(/foreign key/i);
+    expect(await rows("SELECT owner_project FROM projects WHERE slug = 'konnect'")).toEqual([{ owner_project: "boss" }]);
   });
 
   it("registers an environment, a pin, an adoption mode and updates them in place", async () => {

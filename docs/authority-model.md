@@ -35,6 +35,10 @@ Unchanged: C1 (own repo), C2 (Neon, EU), C5 (key metadata only, never secrets), 
 - **Drift view** (`/drift`, plus a status per project and a findings table per project): declared pins against the collector's `latest`/`next`, declared cells against their health, and projects with no owner. A package or cell the collector has not seen is amber, never green. Retired projects are skipped. Rules are in `src/registry/drift.ts`.
 - New pages require an active `console_operators` row. The older pages (`/packages`, `/cells`, `/collector`) still only require sign-in; see below.
 
+## Ownership
+
+A project is owned by another **project** (`projects.owner_project`, migration `db/003_owner_project.sql`), not only by a person. The core hubs and tooling belong to TIN BOSS; Konnect, its apps and the Shell Base modules built for it belong to Konnect. A project may own itself, which marks a top-level owner. People can still be assigned (owner or maintainer) on top. A project counts as owned if it has an owning project or an assigned owner; the Owner filter on `/projects` can filter by "Owned by <project>", by person, or "No owner".
+
 ## Also built
 
 - Every console page now requires an active `console_operators` row (`requireOperator`), not just a sign-in. Neon Auth sign-up cannot be closed to OAuth, so signing in alone grants nothing.

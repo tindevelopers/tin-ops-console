@@ -37,12 +37,13 @@ export default function ProjectsView({ reg, observed, sp, canEdit, isAdmin, erro
 
   const clients = [...new Set(all.map((r) => r.client).filter((c): c is string => Boolean(c)))].sort();
   const owners = [...new Set(all.flatMap((r) => r.owners))].sort();
+  const owningProjects = [...new Map(all.filter((r) => r.ownerProject).map((r) => [r.ownerProject!, r.ownerName!])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
   const fields: FilterField[] = [
     { kind: "search", name: "q", label: "Search projects", value: f.q, placeholder: "Search name, owner, client…" },
     { kind: "select", name: "status", label: "Status", value: f.status, options: [ANY, { value: "red", label: "Failing" }, { value: "amber", label: "Attention" }, { value: "green", label: "Healthy" }] },
     { kind: "select", name: "kind", label: "Kind", value: f.kind, options: [ANY, ...KINDS.map((k) => ({ value: k, label: k }))] },
     { kind: "select", name: "client", label: "Client", value: f.client, options: [ANY, { value: "none", label: "No client" }, ...clients.map((c) => ({ value: c, label: c }))] },
-    { kind: "select", name: "owner", label: "Owner", value: f.owner, options: [ANY, { value: "none", label: "No owner" }, ...owners.map((o) => ({ value: o, label: o }))] },
+    { kind: "select", name: "owner", label: "Owner", value: f.owner, options: [ANY, { value: "none", label: "No owner" }, ...owningProjects.map(([slug, name]) => ({ value: `p:${slug}`, label: `Owned by ${name}` })), ...owners.map((o) => ({ value: o, label: o }))] },
     { kind: "select", name: "lifecycle", label: "Lifecycle", value: f.lifecycle, options: [ANY, ...LIFECYCLES.map((l) => ({ value: l, label: l }))] },
   ];
 
@@ -89,6 +90,12 @@ export default function ProjectsView({ reg, observed, sp, canEdit, isAdmin, erro
             <label className="text-sm">Client<br /><input name="client" autoComplete="off" className={inputCls} /></label>
             <label className="text-sm">Repo<br /><input name="repo" autoComplete="off" className={inputCls} placeholder="tindevelopers/…" /></label>
             <label className="text-sm">Lifecycle<br /><Select name="lifecycle" options={LIFECYCLES} defaultValue="active" /></label>
+            <label className="text-sm">Owned by<br />
+              <select name="ownerProject" autoComplete="off" defaultValue="" className={inputCls}>
+                <option value="">(none)</option>
+                {reg.projects.map((p) => <option key={p.slug} value={p.slug}>{p.name}</option>)}
+              </select>
+            </label>
             <button className={btnCls}>Add project</button>
           </form>
         </details>

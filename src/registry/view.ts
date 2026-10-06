@@ -14,12 +14,13 @@ const oneOf = <T extends string>(v: string, allowed: readonly T[]): T | "" => ((
 
 export type ProjectRow = {
   slug: string; name: string; kind: Kind; client: string | null; lifecycle: Lifecycle;
-  owners: string[]; parent: string | null;
+  owners: string[]; ownerProject: string | null; ownerName: string | null; parent: string | null;
   /** null for retired projects, which are not checked */
   colour: Colour | null; red: number; amber: number; topFinding: Finding | null;
 };
 
 export function summarise(reg: Registry, findings: Finding[]): ProjectRow[] {
+  const nameOf = new Map(reg.projects.map((p) => [p.slug, p.name]));
   const parentOf = new Map<string, string>();
   for (const r of reg.relations) if (r.relation === "hosts" && !parentOf.has(r.toSlug)) parentOf.set(r.toSlug, r.fromSlug);
   return reg.projects.map((p) => {
@@ -30,12 +31,16 @@ export function summarise(reg: Registry, findings: Finding[]): ProjectRow[] {
     return {
       slug: p.slug, name: p.name, kind: p.kind, client: p.client, lifecycle: p.lifecycle,
       owners: reg.assignments.filter((a) => a.projectSlug === p.slug && a.role === "owner").map((a) => a.assignee),
+      ownerProject: p.ownerProject, ownerName: p.ownerProject ? nameOf.get(p.ownerProject) ?? p.ownerProject : null,
       parent: parentOf.get(p.slug) ?? null,
       colour: retired ? null : red ? "red" : amber ? "amber" : "green",
       red, amber, topFinding: bad[0] ?? null,
     };
   });
 }
+
+/** Owned by neither a project nor a person. */
+export const hasNoOwner = (r: ProjectRow) => !r.ownerProject && r.owners.length === 0;
 
 export const STATUSES = ["red", "amber", "green"] as const;
 export const SORT_KEYS = ["severity", "name", "kind", "client", "owner", "lifecycle"] as const;
@@ -66,16 +71,16 @@ export const isNestedView = (f: ProjectFilters) => !hasFilters(f) && f.sort === 
 export function applyProjectFilters(rows: ProjectRow[], f: ProjectFilters): ProjectRow[] {
   const q = f.q.toLowerCase();
   return rows.filter((r) =>
-    (!q || [r.name, r.slug, r.client ?? "", ...r.owners].some((s) => s.toLowerCase().includes(q))) &&
+    (!q || [r.name, r.slug, r.client ?? "", r.ownerName ?? "", ...r.owners].some((s) => s.toLowerCase().includes(q))) &&
     (!f.kind || r.kind === f.kind) &&
     (!f.client || (f.client === "none" ? r.client === null : r.client === f.client)) &&
     (!f.status || r.colour === f.status) &&
-    (!f.owner || (f.owner === "none" ? r.owners.length === 0 : r.owners.includes(f.owner))) &&
+    (!f.owner || (f.owner === "none" ? hasNoOwner(r) : f.owner.startsWith("p:") ? r.ownerProject === f.owner.slice(2) : r.owners.includes(f.owner))) &&
     (!f.lifecycle || r.lifecycle === f.lifecycle));
 }
 
 const severity = (r: ProjectRow) => r.red * 1000 + r.amber;
-const text = (r: ProjectRow, k: SortKey) => (k === "name" ? r.name : k === "kind" ? r.kind : k === "client" ? r.client ?? "" : k === "owner" ? r.owners[0] ?? "" : r.lifecycle);
+const text = (r: ProjectRow, k: SortKey) => (k === "name" ? r.name : k === "kind" ? r.kind : k === "client" ? r.client ?? "" : k === "owner" ? r.ownerName ?? r.owners[0] ?? "" : r.lifecycle);
 
 export function sortProjectRows(rows: ProjectRow[], sort: SortKey, dir: "asc" | "desc"): ProjectRow[] {
   const sign = dir === "asc" ? 1 : -1;
@@ -113,7 +118,7 @@ export function projectCounts(rows: ProjectRow[]) {
     red: live.filter((r) => r.colour === "red").length,
     amber: live.filter((r) => r.colour === "amber").length,
     green: live.filter((r) => r.colour === "green").length,
-    noOwner: live.filter((r) => r.owners.length === 0).length,
+    noOwner: live.filter(hasNoOwner).length,
   };
 }
 

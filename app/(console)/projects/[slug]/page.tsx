@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { currentOperator, requireOperator } from "@/src/auth/access";
 import { bySeverity, computeDrift } from "@/src/registry/drift";
@@ -31,6 +32,11 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
   return (
     <div>
       <PageHeading title={project.name} subtitle={`${project.kind} · ${project.slug}${project.repo ? ` · ${project.repo}` : ""}`} />
+      {project.ownerProject && (
+        <p className="-mt-2 mb-4 text-sm text-gray-600 dark:text-gray-300">
+          Owned by {project.ownerProject === slug ? "itself (top-level owner)" : <Link href={`/projects/${project.ownerProject}`} className="underline">{reg.projects.find((x) => x.slug === project.ownerProject)?.name ?? project.ownerProject}</Link>}
+        </p>
+      )}
       <ErrorNotice message={error} />
       {project.lifecycle === "retired" && <Notice>This project is retired. It is excluded from drift checks.</Notice>}
 
@@ -162,6 +168,12 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
             <label className="text-sm">Client<br /><input name="client" autoComplete="off" className={inputCls} defaultValue={project.client ?? ""} /></label>
             <label className="text-sm">Repo<br /><input name="repo" autoComplete="off" className={inputCls} defaultValue={project.repo ?? ""} /></label>
             <label className="text-sm">Lifecycle<br /><Select name="lifecycle" options={LIFECYCLES} defaultValue={project.lifecycle} /></label>
+            <label className="text-sm">Owned by<br />
+              <select name="ownerProject" autoComplete="off" defaultValue={project.ownerProject ?? ""} className={inputCls}>
+                <option value="">(none)</option>
+                {reg.projects.map((x) => <option key={x.slug} value={x.slug}>{x.slug === slug ? `${x.name} (itself)` : x.name}</option>)}
+              </select>
+            </label>
             <label className="text-sm">Notes<br /><input name="notes" autoComplete="off" className={inputCls} defaultValue={project.notes ?? ""} /></label>
             <button className={btnCls}>Save</button>
           </form>

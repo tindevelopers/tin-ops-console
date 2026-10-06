@@ -69,7 +69,10 @@ export default function ProjectsTable({ rows, sorts, nested }: { rows: TreeRow[]
                 </td>
                 <td className={td}>{r.kind}</td>
                 <td className={td}>{r.client ?? "—"}</td>
-                <td className={td}>{r.owners.length ? r.owners.join(", ") : <span className="text-gray-400">—</span>}</td>
+                <td className={td}>
+                  {r.ownerName ? <Link href={`/projects/${r.ownerProject}`} className="underline">{r.ownerName}</Link> : r.owners.length ? null : <span className="text-gray-400">—</span>}
+                  {r.owners.length > 0 && <p className="text-xs text-gray-500 dark:text-gray-400">{r.owners.join(", ")}</p>}
+                </td>
                 <td className={td}>{r.lifecycle}</td>
                 <td className={td}>
                   <Chips red={r.red} amber={r.amber} />
