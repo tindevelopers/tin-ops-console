@@ -22,7 +22,7 @@ export async function loadRegistry(): Promise<Registry> {
     read("select * from project_relations order by from_slug, to_slug"),
   ]);
   return {
-    projects: projects.map((r) => ({ slug: r.slug, name: r.name, kind: r.kind, client: r.client, repo: r.repo, lifecycle: r.lifecycle, notes: r.notes, ownerProject: r.owner_project ?? null })),
+    projects: projects.map((r) => ({ slug: r.slug, name: r.name, kind: r.kind, client: r.client, repo: r.repo, lifecycle: r.lifecycle, notes: r.notes, ownerProject: r.owner_project ?? null, path: r.path ?? null })),
     environments: environments.map((r) => ({ projectSlug: r.project_slug, name: r.name, cell: r.cell, region: r.region, url: r.url })),
     pins: pins.map((r) => ({ projectSlug: r.project_slug, environment: r.environment, package: r.package, version: r.version })),
     adoption: adoption.map((r) => ({ projectSlug: r.project_slug, environment: r.environment, domainMode: r.domain_mode })),
@@ -49,4 +49,23 @@ export async function registryWrite(actor: string, statements: Statement[]): Pro
     sql.query("select set_config('console.actor', $1, true)", [actor]),
     ...statements.map((s) => sql.query(s.text, s.params)),
   ]);
+}
+
+export type AgentRun = { projectSlug: string; environment: string; package: string; fromVersion: string; toVersion: string; issueUrl: string; requestedBy: string; requestedAt: Date };
+
+/** Recent "Fix with agent" hand-offs, newest first. Empty if the table has not been created yet, so Drift still renders. */
+export async function loadAgentRuns(): Promise<AgentRun[]> {
+  try {
+    const rows = await read("select * from agent_runs order by requested_at desc limit 500");
+    return rows.map((r) => ({ projectSlug: r.project_slug, environment: r.environment, package: r.package, fromVersion: r.from_version, toVersion: r.to_version, issueUrl: r.issue_url, requestedBy: r.requested_by, requestedAt: new Date(r.requested_at) }));
+  } catch {
+    return [];
+  }
+}
+
+export async function recordAgentRun(r: Omit<AgentRun, "requestedAt">): Promise<void> {
+  await registryWrite(r.requestedBy, [{
+    text: "INSERT INTO agent_runs (project_slug, environment, package, from_version, to_version, issue_url, requested_by) VALUES ($1,$2,$3,$4,$5,$6,$7)",
+    params: [r.projectSlug, r.environment, r.package, r.fromVersion, r.toVersion, r.issueUrl, r.requestedBy],
+  }]);
 }
