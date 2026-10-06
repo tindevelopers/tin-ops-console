@@ -22,7 +22,7 @@ export async function loadRegistry(): Promise<Registry> {
     read("select * from project_relations order by from_slug, to_slug"),
   ]);
   return {
-    projects: projects.map((r) => ({ slug: r.slug, name: r.name, kind: r.kind, client: r.client, repo: r.repo, lifecycle: r.lifecycle, notes: r.notes })),
+    projects: projects.map((r) => ({ slug: r.slug, name: r.name, kind: r.kind, client: r.client, repo: r.repo, lifecycle: r.lifecycle, notes: r.notes, ownerProject: r.owner_project ?? null })),
     environments: environments.map((r) => ({ projectSlug: r.project_slug, name: r.name, cell: r.cell, region: r.region, url: r.url })),
     pins: pins.map((r) => ({ projectSlug: r.project_slug, environment: r.environment, package: r.package, version: r.version })),
     adoption: adoption.map((r) => ({ projectSlug: r.project_slug, environment: r.environment, domainMode: r.domain_mode })),

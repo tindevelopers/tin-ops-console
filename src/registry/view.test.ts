@@ -3,13 +3,13 @@ import { applyProjectFilters, filterFindings, filterPackageRows, isNestedView, n
 import type { Finding, Project, Registry } from "./types";
 import type { PackageSnapshot } from "@/src/status/types";
 
-const proj = (slug: string, over: Partial<Project> = {}): Project => ({ slug, name: slug.toUpperCase(), kind: "app", client: null, repo: null, lifecycle: "active", notes: null, ...over });
+const proj = (slug: string, over: Partial<Project> = {}): Project => ({ slug, name: slug.toUpperCase(), kind: "app", client: null, repo: null, lifecycle: "active", notes: null, ownerProject: null, ...over });
 const finding = (projectSlug: string, colour: Finding["colour"], message = "m", kind: Finding["kind"] = "pin", subject = "pkg"): Finding => ({ projectSlug, environment: "development", kind, subject, colour, message });
 
 const reg: Registry = {
   projects: [
-    proj("caas", { kind: "spoke", client: "konnect" }), proj("ops", { client: "konnect" }), proj("partner", { client: "konnect" }),
-    proj("boss", { kind: "boss" }), proj("old", { lifecycle: "retired" }),
+    proj("caas", { kind: "spoke", client: "konnect", ownerProject: "caas" }), proj("ops", { client: "konnect", ownerProject: "caas" }), proj("partner", { client: "konnect" }),
+    proj("boss", { kind: "boss", ownerProject: "boss" }), proj("old", { lifecycle: "retired" }),
   ],
   environments: [], pins: [], adoption: [],
   assignments: [{ id: "1", projectSlug: "boss", assignee: "gene@tin.info", role: "owner", assignedBy: "x", assignedAt: new Date() }, { id: "2", projectSlug: "ops", assignee: "mary@tin.info", role: "maintainer", assignedBy: "x", assignedAt: new Date() }],
@@ -27,6 +27,10 @@ describe("summarise", () => {
     expect(row("boss")).toMatchObject({ colour: "green", topFinding: null });
   });
   it("retired projects have no status", () => expect(row("old").colour).toBeNull());
+  it("carries the owning project and its name", () => {
+    expect(row("ops")).toMatchObject({ ownerProject: "caas", ownerName: "CAAS" });
+    expect(row("partner")).toMatchObject({ ownerProject: null, ownerName: null });
+  });
   it("takes owners from owner assignments only, and the parent from 'hosts' relations", () => {
     expect(row("boss").owners).toEqual(["gene@tin.info"]);
     expect(row("ops").owners).toEqual([]); // a maintainer is not an owner
@@ -63,11 +67,14 @@ describe("applyProjectFilters", () => {
   });
   it("filters by owner, including 'none'", () => {
     expect(names({ owner: "gene@tin.info" })).toEqual(["boss"]);
-    expect(names({ owner: "none" })).toEqual(["caas", "old", "ops", "partner"]);
+    expect(names({ owner: "none" })).toEqual(["old", "partner"]); // owned by neither a project nor a person
+    expect(names({ owner: "p:caas" })).toEqual(["caas", "ops"]);
+    expect(names({ owner: "p:boss" })).toEqual(["boss"]);
   });
   it("searches name, slug, client and owner, ignoring case", () => {
     expect(names({ q: "KONNECT" })).toEqual(["caas", "ops", "partner"]);
     expect(names({ q: "gene" })).toEqual(["boss"]);
+    expect(names({ q: "caas" })).toEqual(["caas", "ops"]); // matches the owning project's name too
     expect(names({ q: "zzz" })).toEqual([]);
   });
   it("combines filters", () => expect(names({ client: "konnect", status: "amber" })).toEqual(["partner"]));
@@ -93,7 +100,7 @@ describe("sortProjectRows and nest", () => {
 
 describe("projectCounts", () => {
   it("counts live projects by status and without an owner; retired are excluded", () => {
-    expect(projectCounts(rows)).toEqual({ total: 5, red: 1, amber: 1, green: 2, noOwner: 3 });
+    expect(projectCounts(rows)).toEqual({ total: 5, red: 1, amber: 1, green: 2, noOwner: 1 });
   });
 });
 

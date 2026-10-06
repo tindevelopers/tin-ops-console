@@ -54,8 +54,8 @@ export function cellFinding(env: Environment, cells: CellSnapshot[] | null): Fin
 }
 
 export function ownerFinding(project: Project, ownerCount: number): Finding | null {
-  if (ownerCount > 0) return null;
-  return { projectSlug: project.slug, environment: null, kind: "owner", subject: "owner", colour: "amber", message: "No owner assigned." };
+  if (ownerCount > 0 || project.ownerProject) return null;
+  return { projectSlug: project.slug, environment: null, kind: "owner", subject: "owner", colour: "amber", message: "No owner: set an owning project or assign a person." };
 }
 
 /** All findings for every non-retired project. packages and cells are null when the collector has produced no data. */

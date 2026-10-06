@@ -52,7 +52,7 @@ describe("cellFinding", () => {
   it("healthy is green", () => expect(cellFinding(env("konnect-dev"), [cellSnap(200, 200)])?.colour).toBe("green"));
 });
 
-const project = (slug: string, lifecycle: Project["lifecycle"] = "active"): Project => ({ slug, name: slug, kind: "app", client: null, repo: null, lifecycle, notes: null });
+const project = (slug: string, lifecycle: Project["lifecycle"] = "active"): Project => ({ slug, name: slug, kind: "app", client: null, repo: null, lifecycle, notes: null, ownerProject: null });
 
 describe("computeDrift", () => {
   const reg = (over: Partial<Registry>): Registry => ({ projects: [], environments: [], pins: [], adoption: [], assignments: [], relations: [], ...over });
@@ -60,6 +60,11 @@ describe("computeDrift", () => {
   it("flags an active project with no owner", () => {
     expect(ownerFinding(project("a"), 0)?.colour).toBe("amber");
     expect(ownerFinding(project("a"), 1)).toBeNull();
+  });
+
+  it("an owning project counts as an owner, even with no person assigned", () => {
+    expect(ownerFinding({ ...project("a"), ownerProject: "boss" }, 0)).toBeNull();
+    expect(ownerFinding({ ...project("a"), ownerProject: "a" }, 0)).toBeNull(); // top-level, owns itself
   });
 
   it("ignores retired projects entirely", () => {

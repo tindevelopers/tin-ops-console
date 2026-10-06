@@ -15,7 +15,7 @@ export type DomainMode = (typeof DOMAIN_MODES)[number];
 export type Relation = (typeof RELATIONS)[number];
 export type AssignRole = (typeof ASSIGN_ROLES)[number];
 
-export type Project = { slug: string; name: string; kind: Kind; client: string | null; repo: string | null; lifecycle: Lifecycle; notes: string | null };
+export type Project = { slug: string; name: string; kind: Kind; client: string | null; repo: string | null; lifecycle: Lifecycle; notes: string | null; ownerProject: string | null };
 export type Environment = { projectSlug: string; name: EnvName; cell: string | null; region: string | null; url: string | null };
 export type Pin = { projectSlug: string; environment: EnvName; package: string; version: string };
 export type Adoption = { projectSlug: string; environment: EnvName; domainMode: DomainMode };
