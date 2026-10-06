@@ -78,11 +78,14 @@ describe("github", () => {
     stub({ ok: false, status: 404 });
     await expect(createIssue(buildPinTask(input), "tok")).rejects.toThrow(/404/);
   });
-  it("finds an open issue by exact title and ignores PRs and near matches", async () => {
+  it("finds an open issue by exact title using the plain issues list, ignoring PRs and near matches", async () => {
     const title = issueTitle(input);
-    stub({ ok: true, json: async () => ({ items: [{ title: title + " v2", html_url: "https://github.com/o/r/issues/9" }, { title, html_url: "https://github.com/o/r/pull/8", pull_request: {} }, { title, html_url: "https://github.com/o/r/issues/7" }] }) });
+    const m = stub({ ok: true, json: async () => [{ title: title + " v2", html_url: "https://github.com/o/r/issues/9" }, { title, html_url: "https://github.com/o/r/pull/8", pull_request: {} }, { title, html_url: "https://github.com/o/r/issues/7" }] });
     expect(await findOpenIssue("o/r", title, "tok")).toBe("https://github.com/o/r/issues/7");
-    stub({ ok: true, json: async () => ({ items: [] }) });
+    expect(m.mock.calls[0][0]).toBe("https://api.github.com/repos/o/r/issues?state=open&per_page=100");
+    stub({ ok: true, json: async () => [] });
     expect(await findOpenIssue("o/r", title, "tok")).toBeNull();
+    stub({ ok: false, status: 403 });
+    await expect(findOpenIssue("o/r", title, "tok")).rejects.toThrow(/403/);
   });
 });
