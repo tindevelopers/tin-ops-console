@@ -12,7 +12,8 @@ import { Notice, PageHeading, StatusDot, fmt } from "@/components/StatusUi";
 
 const tab = (active: boolean) => `rounded-lg px-3 py-1.5 text-sm font-medium ${active ? "bg-brand-500 text-white" : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"}`;
 
-export default function DriftView({ reg, observed, sp }: { reg: Registry; observed: Observed; sp: Record<string, string | string[] | undefined> }) {
+export default function DriftView({ reg, observed, sp, onFix }: { reg: Registry; observed: Observed; sp: Record<string, string | string[] | undefined>; onFix?: (f: FormData) => void | Promise<void> }) {
+  const one = (k: string) => (Array.isArray(sp[k]) ? sp[k][0] : sp[k]) ?? "";
   const f = parseDriftFilters(sp);
   const findings = computeDrift(reg, observed.packages, observed.cells);
   const age = staleness(observed.run?.finishedAt ?? null, new Date());
@@ -43,6 +44,9 @@ export default function DriftView({ reg, observed, sp }: { reg: Registry; observ
       )}
       {age !== "green" && observed.run && <Notice>The observed data is stale, so the findings below may not reflect reality.</Notice>}
 
+      {/^https:\/\/github\.com\//.test(one("agent")) && <Notice>Agent started: <a className="underline" href={one("agent")}>{one("agent")}</a>. It will open a draft pull request for review.</Notice>}
+      {one("agentError") && <Notice>{one("agentError")}</Notice>}
+
       <nav className="my-4 flex gap-2" aria-label="Drift views">
         <Link href={viewHref("project")} className={tab(f.view === "project")} aria-current={f.view === "project" ? "page" : undefined}>By project</Link>
         <Link href={viewHref("package")} className={tab(f.view === "package")} aria-current={f.view === "package" ? "page" : undefined}>By package</Link>
@@ -58,7 +62,7 @@ export default function DriftView({ reg, observed, sp }: { reg: Registry; observ
       ) : (
         <>
           <FilterBar fields={fields} shown={shownFindings.length} total={findings.length} noun="checks" />
-          {shownFindings.length === 0 ? <Notice>Nothing to show for these filters.</Notice> : <Findings findings={shownFindings} showProject />}
+          {shownFindings.length === 0 ? <Notice>Nothing to show for these filters.</Notice> : <Findings findings={shownFindings} showProject onFix={onFix} />}
         </>
       )}
     </div>

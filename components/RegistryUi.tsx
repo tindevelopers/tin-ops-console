@@ -27,9 +27,9 @@ export function Select({ name, options, defaultValue }: { name: string; options:
   );
 }
 
-export function Findings({ findings, showProject = false }: { findings: Finding[]; showProject?: boolean }) {
+export function Findings({ findings, showProject = false, onFix }: { findings: Finding[]; showProject?: boolean; onFix?: (f: FormData) => void | Promise<void> }) {
   return (
-    <Table head={[...(showProject ? ["Project"] : []), "Environment", "Check", "What", "Status"]}>
+    <Table head={[...(showProject ? ["Project"] : []), "Environment", "Check", "What", "Status", ...(onFix ? [""] : [])]}>
       {findings.map((f, i) => (
         <tr key={i}>
           {showProject && <td className={`${td} font-medium`}><a className="underline" href={`/projects/${f.projectSlug}`}>{f.projectSlug}</a></td>}
@@ -37,6 +37,18 @@ export function Findings({ findings, showProject = false }: { findings: Finding[
           <td className={td}>{f.kind === "pin" ? `Pin ${f.subject}` : f.kind === "cell" ? `Cell ${f.subject}` : "Ownership"}</td>
           <td className={td}>{f.message}</td>
           <td className={td}><StatusDot colour={f.colour} /></td>
+          {onFix && (
+            <td className={td}>
+              {f.kind === "pin" && f.colour !== "green" && f.environment && (
+                <form action={onFix}>
+                  <input type="hidden" name="project" value={f.projectSlug} />
+                  <input type="hidden" name="environment" value={f.environment} />
+                  <input type="hidden" name="package" value={f.subject} />
+                  <button className="whitespace-nowrap rounded-lg border border-gray-300 px-2.5 py-1 text-xs font-medium hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-white/5">Fix with agent</button>
+                </form>
+              )}
+            </td>
+          )}
         </tr>
       ))}
     </Table>
