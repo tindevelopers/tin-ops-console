@@ -1,4 +1,4 @@
-import { requireUser } from "@/src/auth/auth";
+import { requireOperator } from "@/src/auth/access";
 import { cellSnapshots, latestDataRun, statusStoreConfigured } from "@/src/status/db";
 import { cellColour } from "@/src/status/rules";
 import { Notice, PageHeading, StatusDot, Table, fmt, td } from "@/components/StatusUi";
@@ -6,7 +6,7 @@ import { Notice, PageHeading, StatusDot, Table, fmt, td } from "@/components/Sta
 export const dynamic = "force-dynamic";
 
 export default async function CellsPage() {
-  await requireUser();
+  await requireOperator();
   if (!statusStoreConfigured()) {
     return (
       <div>

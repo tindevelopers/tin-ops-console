@@ -35,11 +35,14 @@ Unchanged: C1 (own repo), C2 (Neon, EU), C5 (key metadata only, never secrets), 
 - **Drift view** (`/drift`, plus a status per project and a findings table per project): declared pins against the collector's `latest`/`next`, declared cells against their health, and projects with no owner. A package or cell the collector has not seen is amber, never green. Retired projects are skipped. Rules are in `src/registry/drift.ts`.
 - New pages require an active `console_operators` row. The older pages (`/packages`, `/cells`, `/collector`) still only require sign-in; see below.
 
+## Also built
+
+- Every console page now requires an active `console_operators` row (`requireOperator`), not just a sign-in. Neon Auth sign-up cannot be closed to OAuth, so signing in alone grants nothing.
+- The Overview shows active projects, the number of red and amber findings, collector freshness, and the most urgent findings.
+- The collector (`shell-base-github-registry`, `scripts/collect-status.mjs`) records observed package versions and cell health daily. On `*.run.app` cells it checks `/readyz` only, because Cloud Run reserves `/healthz`.
+
 ## Still to build
 
-1. Apply `db/002_authority.sql` to Neon (needs owner approval, like H2), enable login for `console_admin`, and set `CONSOLE_ADMIN_DATABASE_URL`.
-2. Move the older pages and the Overview onto the operator check (`requireOperator`). Until then any signed-in Neon Auth user, including via OAuth, can read them.
-3. Overview built from declared state and drift counts.
-4. Collector (registry repo): populate observed state, including per-project pins read from lockfiles, so drift has data.
-5. A way to bulk-import the first projects, so the registry isn't filled one form at a time.
-6. Decide whether other systems (registry, cell files) are later generated from the console, or stay as inputs it reconciles against.
+1. Declared versions for the seven Konnect apps other than `konnect-ops`, so drift covers them.
+2. A bulk import for new projects, so the registry is not filled one form at a time.
+3. Decide whether other systems (registry, cell files) are later generated from the console, or stay as inputs it reconciles against.

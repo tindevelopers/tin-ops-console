@@ -22,10 +22,10 @@ importers:
         version: 1.2.0
       '@tindevelopers/domain-identity':
         specifier: 2.3.0
-        version: 2.3.0(@neondatabase/auth@0.5.0-beta(66b13ae952388958f116b5cd6d9102ec))(@tindevelopers/schema-identity@1.1.0)(drizzle-orm@0.45.3(@electric-sql/pglite@0.5.8)(@neondatabase/serverless@1.2.0)(kysely@0.29.6))(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
+        version: 2.3.0(@neondatabase/auth@0.5.0-beta(66b13ae952388958f116b5cd6d9102ec))(@tindevelopers/schema-identity@1.1.1)(drizzle-orm@0.45.3(@electric-sql/pglite@0.5.8)(@neondatabase/serverless@1.2.0)(kysely@0.29.6))(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@tindevelopers/schema-identity':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 1.1.1
+        version: 1.1.1
       '@tindevelopers/ui-shell':
         specifier: 1.2.0
         version: 1.2.0(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
@@ -2251,8 +2251,8 @@ packages:
       drizzle-orm:
         optional: true
 
-  '@tindevelopers/schema-identity@1.1.0':
-    resolution: {integrity: sha512-P3oEOUYYhK6XfqCurErR9ioNEgjJp9QePb6mSQ1ZI9c/ZJOmg/nFr/yC8usXJpXOwzwxaXP/SH+6AxzUg2EVzQ==, tarball: https://npm.pkg.github.com/download/@tindevelopers/schema-identity/1.1.0/9e61baad20df48e1f7688ab5f9b10188d74a7ec0}
+  '@tindevelopers/schema-identity@1.1.1':
+    resolution: {integrity: sha512-Fv5xYQDES4qVF/OXSzdy9loVUNLw+lVT8gg1pJSp4ryDAblqHlNAAc5XTN8zMbFQ/n5FTZlhlva9YTDzLhFsjA==, tarball: https://npm.pkg.github.com/download/@tindevelopers/schema-identity/1.1.1/b055eab403b056a8790d4b84e63becb46ee480f9}
 
   '@tindevelopers/ui-shell@1.2.0':
     resolution: {integrity: sha512-VKvaIZXUc86qTVF1fMHgPJS7CxYcZaE7lPVbyIaFsnFJca0zW6HGDX6Ro1LEVbJtD7ZGYROXeoVoAugaQ35BKQ==, tarball: https://npm.pkg.github.com/download/@tindevelopers/ui-shell/1.2.0/188fc8a68ccc14a58e1fe69511ce12ba5ede0c8f}
@@ -5863,11 +5863,11 @@ snapshots:
       '@tanstack/query-core': 5.104.1
       react: 19.3.0
 
-  '@tindevelopers/domain-identity@2.3.0(@neondatabase/auth@0.5.0-beta(66b13ae952388958f116b5cd6d9102ec))(@tindevelopers/schema-identity@1.1.0)(drizzle-orm@0.45.3(@electric-sql/pglite@0.5.8)(@neondatabase/serverless@1.2.0)(kysely@0.29.6))(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
+  '@tindevelopers/domain-identity@2.3.0(@neondatabase/auth@0.5.0-beta(66b13ae952388958f116b5cd6d9102ec))(@tindevelopers/schema-identity@1.1.1)(drizzle-orm@0.45.3(@electric-sql/pglite@0.5.8)(@neondatabase/serverless@1.2.0)(kysely@0.29.6))(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
       '@supabase/ssr': 0.8.0(@supabase/supabase-js@2.117.2)
       '@supabase/supabase-js': 2.117.2
-      '@tindevelopers/schema-identity': 1.1.0
+      '@tindevelopers/schema-identity': 1.1.1
       '@workos-inc/node': 10.14.0
       next: 16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
@@ -5880,7 +5880,7 @@ snapshots:
     transitivePeerDependencies:
       - '@opentelemetry/api'
 
-  '@tindevelopers/schema-identity@1.1.0': {}
+  '@tindevelopers/schema-identity@1.1.1': {}
 
   '@tindevelopers/ui-shell@1.2.0(next@16.3.8(@babel/core@7.29.7)(@types/node@22.20.5)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)':
     dependencies:
