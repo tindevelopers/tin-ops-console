@@ -59,7 +59,9 @@ const cell = (healthzStatus: number | null, readyzStatus: number | null): CellSn
 
 describe("cellColour", () => {
   it("both 200 is green", () => expect(cellColour(cell(200, 200))).toBe("green"));
-  it("null healthz is red", () => expect(cellColour(cell(null, 200))).toBe("red"));
+  it("healthz not checked (Cloud Run) with readyz 200 is green", () => expect(cellColour(cell(null, 200))).toBe("green"));
+  it("nothing answered is red", () => expect(cellColour(cell(null, null))).toBe("red"));
+  it("healthz 404 is red (a non-Cloud-Run cell whose liveness route is missing)", () => expect(cellColour(cell(404, 200))).toBe("red"));
   it("null readyz is red", () => expect(cellColour(cell(200, null))).toBe("red"));
   it("non-200 healthz is red", () => expect(cellColour(cell(500, 200))).toBe("red"));
   it("non-200 readyz is red", () => expect(cellColour(cell(200, 503))).toBe("red"));

@@ -17,8 +17,14 @@ export function packageColour(row: PackageSnapshot): Colour {
   return "red";
 }
 
+/**
+ * A cell is healthy when /readyz answers 200 and /healthz, if it was checked, did too.
+ * healthz is null for Cloud Run cells (*.run.app): its frontend reserves /healthz and answers 404,
+ * so the collector only checks /readyz there. A ready service is by definition running.
+ */
 export function cellColour(row: CellSnapshot): Colour {
-  return row.healthzStatus === 200 && row.readyzStatus === 200 ? "green" : "red";
+  if (row.readyzStatus !== 200) return "red";
+  return row.healthzStatus === null || row.healthzStatus === 200 ? "green" : "red";
 }
 
 export function worst(colours: Colour[]): Colour {
