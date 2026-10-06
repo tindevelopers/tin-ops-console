@@ -10,7 +10,7 @@ const bad = (type: Parameters<typeof parseCommand>[0], o: Record<string, string>
 describe("parseCommand", () => {
   it("parses a project and trims, with blank optionals as null", () => {
     expect(parseCommand("upsertProject", form({ slug: "konnect", name: " Konnect ", kind: "app", lifecycle: "active", client: "", repo: "tindevelopers/konnect-caas-base" })))
-      .toEqual({ type: "upsertProject", slug: "konnect", name: "Konnect", kind: "app", client: null, repo: "tindevelopers/konnect-caas-base", lifecycle: "active", notes: null, ownerProject: null });
+      .toEqual({ type: "upsertProject", slug: "konnect", name: "Konnect", kind: "app", client: null, repo: "tindevelopers/konnect-caas-base", lifecycle: "active", notes: null, ownerProject: null, path: null });
   });
 
   it.each([
@@ -42,6 +42,12 @@ describe("parseCommand", () => {
     expect(parseCommand("upsertProject", form({ ...base, ownerProject: "konnect-caas-base" }))).toMatchObject({ ownerProject: "konnect-caas-base" });
     expect(parseCommand("upsertProject", form({ ...base, ownerProject: "" }))).toMatchObject({ ownerProject: null });
     expect(bad("upsertProject", { ...base, ownerProject: "Not A Slug" })).toBeInstanceOf(ValidationError);
+  });
+  it("accepts a folder path in the repo and rejects anything that could escape it", () => {
+    const base = { slug: "konnect-ops", name: "Konnect ops", kind: "app", lifecycle: "active" };
+    expect(parseCommand("upsertProject", form({ ...base, path: " apps/ops/ " }))).toMatchObject({ path: "apps/ops" });
+    expect(parseCommand("upsertProject", form({ ...base, path: "" }))).toMatchObject({ path: null });
+    for (const p of ["/etc", "../x", "a/../b", "a b", "a//b", "apps/ops;rm"]) expect(bad("upsertProject", { ...base, path: p })).toBeInstanceOf(ValidationError);
   });
 
   it("lower-cases assignee emails", () => {

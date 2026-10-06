@@ -5,7 +5,7 @@ import type { AssignRole, DomainMode, EnvName, Kind, Lifecycle, Relation } from 
 export class ValidationError extends Error {}
 
 export type Command =
-  | { type: "upsertProject"; slug: string; name: string; kind: Kind; client: string | null; repo: string | null; lifecycle: Lifecycle; notes: string | null; ownerProject: string | null }
+  | { type: "upsertProject"; slug: string; name: string; kind: Kind; client: string | null; repo: string | null; lifecycle: Lifecycle; notes: string | null; ownerProject: string | null; path: string | null }
   | { type: "upsertEnvironment"; slug: string; name: EnvName; cell: string | null; region: string | null; url: string | null }
   | { type: "setPin"; slug: string; environment: EnvName; package: string; version: string }
   | { type: "removePin"; slug: string; environment: EnvName; package: string }
@@ -34,6 +34,12 @@ const slug = (f: Form, k = "slug", label = "Project") => {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(v)) throw new ValidationError(`${label} id may only use lower-case letters, digits and hyphens.`);
   return v;
 };
+/** A relative folder inside the repo: no leading slash, no "..", no odd characters. */
+const optionalPath = (f: Form) => {
+  const v = optional(f, "path")?.replace(/\/+$/, "") ?? null;
+  if (v && (!/^[A-Za-z0-9_.@-]+(\/[A-Za-z0-9_.@-]+)*$/.test(v) || v.split("/").includes(".."))) throw new ValidationError("Path must be a folder inside the repo, like apps/ops.");
+  return v;
+};
 const optionalSlug = (f: Form, k: string, label: string) => {
   const v = optional(f, k);
   if (v && !/^[a-z0-9][a-z0-9-]*$/.test(v)) throw new ValidationError(`${label} id may only use lower-case letters, digits and hyphens.`);
@@ -58,7 +64,7 @@ const exactVersion = (f: Form, k: string) => {
 export function parseCommand(type: Command["type"], f: Form): Command {
   switch (type) {
     case "upsertProject":
-      return { type, slug: slug(f), name: required(f, "name", "Name"), kind: oneOf(f, "kind", KINDS, "Kind"), client: optional(f, "client"), repo: optional(f, "repo"), lifecycle: oneOf(f, "lifecycle", LIFECYCLES, "Lifecycle"), notes: optional(f, "notes"), ownerProject: optionalSlug(f, "ownerProject", "Owning project") };
+      return { type, slug: slug(f), name: required(f, "name", "Name"), kind: oneOf(f, "kind", KINDS, "Kind"), client: optional(f, "client"), repo: optional(f, "repo"), lifecycle: oneOf(f, "lifecycle", LIFECYCLES, "Lifecycle"), notes: optional(f, "notes"), ownerProject: optionalSlug(f, "ownerProject", "Owning project"), path: optionalPath(f) };
     case "upsertEnvironment":
       return { type, slug: slug(f), name: oneOf(f, "name", ENV_NAMES, "Environment"), cell: optional(f, "cell"), region: optional(f, "region"), url: url(f, "url") };
     case "setPin":

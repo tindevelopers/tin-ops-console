@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { computeDrift } from "@/src/registry/drift";
-import type { Observed } from "@/src/registry/db";
+import type { AgentRun, Observed } from "@/src/registry/db";
 import type { Registry } from "@/src/registry/types";
 import { filterFindings, filterPackageRows, packageMatrix, parseDriftFilters } from "@/src/registry/view";
 import { staleness } from "@/src/status/rules";
@@ -12,9 +12,12 @@ import { Notice, PageHeading, StatusDot, fmt } from "@/components/StatusUi";
 
 const tab = (active: boolean) => `rounded-lg px-3 py-1.5 text-sm font-medium ${active ? "bg-brand-500 text-white" : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"}`;
 
-export default function DriftView({ reg, observed, sp, onFix }: { reg: Registry; observed: Observed; sp: Record<string, string | string[] | undefined>; onFix?: (f: FormData) => void | Promise<void> }) {
+export default function DriftView({ reg, observed, sp, onFix, agentRuns = [] }: { reg: Registry; observed: Observed; sp: Record<string, string | string[] | undefined>; onFix?: (f: FormData) => void | Promise<void>; agentRuns?: AgentRun[] }) {
   const one = (k: string) => (Array.isArray(sp[k]) ? sp[k][0] : sp[k]) ?? "";
   const f = parseDriftFilters(sp);
+  // A hand-off only counts while the pin is still at the version it was raised for; once the pin moves on, the marker goes.
+  const runs: Record<string, string> = {};
+  for (const r of [...agentRuns].reverse()) if (reg.pins.some((p) => p.projectSlug === r.projectSlug && p.environment === r.environment && p.package === r.package && p.version === r.fromVersion)) runs[`${r.projectSlug}|${r.environment}|${r.package}`] = r.issueUrl;
   const findings = computeDrift(reg, observed.packages, observed.cells);
   const age = staleness(observed.run?.finishedAt ?? null, new Date());
 
@@ -45,6 +48,7 @@ export default function DriftView({ reg, observed, sp, onFix }: { reg: Registry;
       {age !== "green" && observed.run && <Notice>The observed data is stale, so the findings below may not reflect reality.</Notice>}
 
       {/^https:\/\/github\.com\//.test(one("agent")) && <Notice>Agent started: <a className="underline" href={one("agent")}>{one("agent")}</a>. It will open a draft pull request for review.</Notice>}
+      {/^https:\/\/github\.com\//.test(one("agentExisting")) && <Notice>An agent ticket is already open for this upgrade: <a className="underline" href={one("agentExisting")}>{one("agentExisting")}</a>.</Notice>}
       {one("agentError") && <Notice>{one("agentError")}</Notice>}
 
       <nav className="my-4 flex gap-2" aria-label="Drift views">
@@ -62,7 +66,7 @@ export default function DriftView({ reg, observed, sp, onFix }: { reg: Registry;
       ) : (
         <>
           <FilterBar fields={fields} shown={shownFindings.length} total={findings.length} noun="checks" />
-          {shownFindings.length === 0 ? <Notice>Nothing to show for these filters.</Notice> : <Findings findings={shownFindings} showProject onFix={onFix} />}
+          {shownFindings.length === 0 ? <Notice>Nothing to show for these filters.</Notice> : <Findings findings={shownFindings} showProject onFix={onFix} runs={runs} />}
         </>
       )}
     </div>

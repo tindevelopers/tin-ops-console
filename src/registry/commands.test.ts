@@ -28,7 +28,7 @@ const rows = async <T = any>(sql: string) => (await db.query<T>(sql)).rows;
 
 beforeAll(async () => {
   db = new PGlite();
-  for (const f of ["001_status.sql", "002_authority.sql", "003_owner_project.sql"]) await db.exec(readFileSync(join(__dirname, "../../db", f), "utf8"));
+  for (const f of ["001_status.sql", "002_authority.sql", "003_owner_project.sql", "004_project_path_agent_runs.sql"]) await db.exec(readFileSync(join(__dirname, "../../db", f), "utf8"));
 });
 
 describe("registry commands run against the real schema as console_admin", () => {

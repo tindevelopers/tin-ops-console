@@ -3,7 +3,7 @@ import { applyProjectFilters, filterFindings, filterPackageRows, isNestedView, n
 import type { Finding, Project, Registry } from "./types";
 import type { PackageSnapshot } from "@/src/status/types";
 
-const proj = (slug: string, over: Partial<Project> = {}): Project => ({ slug, name: slug.toUpperCase(), kind: "app", client: null, repo: null, lifecycle: "active", notes: null, ownerProject: null, ...over });
+const proj = (slug: string, over: Partial<Project> = {}): Project => ({ slug, name: slug.toUpperCase(), kind: "app", client: null, repo: null, lifecycle: "active", notes: null, ownerProject: null, path: null, ...over });
 const finding = (projectSlug: string, colour: Finding["colour"], message = "m", kind: Finding["kind"] = "pin", subject = "pkg"): Finding => ({ projectSlug, environment: "development", kind, subject, colour, message });
 
 const reg: Registry = {

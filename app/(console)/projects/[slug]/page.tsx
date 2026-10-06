@@ -31,7 +31,7 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
 
   return (
     <div>
-      <PageHeading title={project.name} subtitle={`${project.kind} · ${project.slug}${project.repo ? ` · ${project.repo}` : ""}`} />
+      <PageHeading title={project.name} subtitle={`${project.kind} · ${project.slug}${project.repo ? ` · ${project.repo}${project.path ? `/${project.path}` : ""}` : ""}`} />
       {project.ownerProject && (
         <p className="-mt-2 mb-4 text-sm text-gray-600 dark:text-gray-300">
           Owned by {project.ownerProject === slug ? "itself (top-level owner)" : <Link href={`/projects/${project.ownerProject}`} className="underline">{reg.projects.find((x) => x.slug === project.ownerProject)?.name ?? project.ownerProject}</Link>}
@@ -167,6 +167,7 @@ export default async function ProjectPage({ params, searchParams }: { params: Pr
             <label className="text-sm">Kind<br /><Select name="kind" options={KINDS} defaultValue={project.kind} /></label>
             <label className="text-sm">Client<br /><input name="client" autoComplete="off" className={inputCls} defaultValue={project.client ?? ""} /></label>
             <label className="text-sm">Repo<br /><input name="repo" autoComplete="off" className={inputCls} defaultValue={project.repo ?? ""} /></label>
+            <label className="text-sm">Path in repo<br /><input name="path" autoComplete="off" placeholder="apps/ops" className={inputCls} defaultValue={project.path ?? ""} /></label>
             <label className="text-sm">Lifecycle<br /><Select name="lifecycle" options={LIFECYCLES} defaultValue={project.lifecycle} /></label>
             <label className="text-sm">Owned by<br />
               <select name="ownerProject" autoComplete="off" defaultValue={project.ownerProject ?? ""} className={inputCls}>
