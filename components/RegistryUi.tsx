@@ -21,7 +21,7 @@ export function ErrorNotice({ message }: { message?: string }) {
 
 export function Select({ name, options, defaultValue }: { name: string; options: readonly string[]; defaultValue?: string }) {
   return (
-    <select name={name} defaultValue={defaultValue} className={inputCls}>
+    <select name={name} defaultValue={defaultValue} autoComplete="off" className={inputCls}>
       {options.map((o) => <option key={o} value={o}>{o}</option>)}
     </select>
   );
