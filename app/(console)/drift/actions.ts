@@ -33,7 +33,11 @@ export async function fixWithAgent(f: FormData) {
       origin: host ? `https://${host}` : null, alsoBehind, requestedBy: admin.email,
     });
 
-    const existing = await findOpenIssue(proj.repo, issueTitle({ pkg, declared: pin.version, latest: snap.latest, project, environment }));
+    // The duplicate check is a convenience: if it fails, still open the ticket (creating it reports any real access problem).
+    const existing = await findOpenIssue(proj.repo, issueTitle({ pkg, declared: pin.version, latest: snap.latest, project, environment })).catch((e) => {
+      console.error("duplicate check failed, creating the ticket anyway", e);
+      return null;
+    });
     if (existing) {
       result = `agentExisting=${encodeURIComponent(existing)}`;
     } else {

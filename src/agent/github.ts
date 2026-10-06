@@ -4,14 +4,17 @@ export const agentConfigured = () => !!process.env.AGENT_GITHUB_TOKEN;
 
 const headers = (token: string) => ({ authorization: `Bearer ${token}`, accept: "application/vnd.github+json", "content-type": "application/json", "x-github-api-version": "2022-11-28" });
 
-/** The open issue with exactly this title, if any, so a second click links to it instead of opening a duplicate. */
+/**
+ * The open issue with exactly this title, if any, so a second click links to it instead of opening a duplicate.
+ * Uses the plain issues list (the same Issues permission as creating one), not the search API, which fine-grained
+ * tokens are refused for private repos with a 422.
+ */
 export async function findOpenIssue(repo: string, title: string, token = process.env.AGENT_GITHUB_TOKEN): Promise<string | null> {
   if (!token) throw new Error("AGENT_GITHUB_TOKEN is not set.");
-  const q = `repo:${repo} is:issue is:open in:title "${title.replace(/"/g, " ")}"`;
-  const res = await fetch(`https://api.github.com/search/issues?q=${encodeURIComponent(q)}&per_page=20`, { headers: headers(token) });
-  if (!res.ok) throw new Error(`GitHub returned ${res.status} searching issues in ${repo}.`);
-  const json = (await res.json()) as { items?: { title: string; html_url: string; pull_request?: unknown }[] };
-  return json.items?.find((x) => x.title === title && !x.pull_request)?.html_url ?? null;
+  const res = await fetch(`https://api.github.com/repos/${repo}/issues?state=open&per_page=100`, { headers: headers(token) });
+  if (!res.ok) throw new Error(`GitHub returned ${res.status} listing issues in ${repo}.`);
+  const items = (await res.json()) as { title: string; html_url: string; pull_request?: unknown }[];
+  return items.find((x) => x.title === title && !x.pull_request)?.html_url ?? null;
 }
 
 /** Opens the work order as a GitHub issue; the Claude workflow in that repo picks up the @claude mention. Returns the issue URL. */
